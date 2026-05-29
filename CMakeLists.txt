@@ -35,10 +35,10 @@ enable_language(C ASM)
 add_executable(${CMAKE_PROJECT_NAME}
         User/main_entry/main_entry.h
         User/main_entry/main_entry.cpp
-        Lib/oled/font.c
-        Lib/oled/oled.c
         User/timer/timer.h
-        User/timer/timer.c)
+        User/timer/timer.c
+        Lib/oled/OLED.c
+        Lib/oled/OLED_Data.c)
 
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)
