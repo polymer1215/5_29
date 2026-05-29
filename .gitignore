@@ -1,0 +1,59 @@
+# --- 编译输出 (Build Outputs) ---
+*.o
+*.obj
+*.elf
+*.bin
+*.hex
+*.map
+*.lst
+*.axf
+*.srec
+*.build_log
+
+# --- 常见的 IDE 目录 ---
+# Keil MDK
+*.uvoptx
+*.uvguix.*
+LST/
+OBJ/
+Listings/
+Objects/
+DebugConfig/
+
+# STM32CubeIDE / Eclipse
+.settings/
+Debug/
+Release/
+bin/
+obj/
+
+# VS Code
+.vscode/
+# 注意：如果你想共享任务配置，可以注释掉上面一行，但排除本地设置
+#!.vscode/tasks.json
+#!.vscode/launch.json
+
+# IAR Embedded Workbench
+Debug/
+Release/
+*.dep
+*.ewd
+*.ewp.gui
+Settings/
+
+# CMake
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+
+# --- 依赖与库 (Dependencies) ---
+# 如果你使用包管理器（如 vcpkg 或 conan）
+vcpkg_installed/
+conan/
+
+# --- 操作系统临时文件 ---
+.DS_Store
+Thumbs.db
+*.swp
+*~
