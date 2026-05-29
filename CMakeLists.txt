@@ -38,7 +38,9 @@ add_executable(${CMAKE_PROJECT_NAME}
         User/timer/timer.h
         User/timer/timer.c
         Lib/oled/OLED.c
-        Lib/oled/OLED_Data.c)
+        Lib/oled/OLED_Data.c
+        User/ultrasonic/ultrasonic.h
+        User/ultrasonic/ultrasonic.c)
 
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)

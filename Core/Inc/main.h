@@ -77,6 +77,10 @@ void Error_Handler(void);
 #define BIN1_GPIO_Port GPIOB
 #define BIN2_Pin GPIO_PIN_5
 #define BIN2_GPIO_Port GPIOB
+#define ECHO_Pin GPIO_PIN_6
+#define ECHO_GPIO_Port GPIOB
+#define TRIG_Pin GPIO_PIN_7
+#define TRIG_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 
