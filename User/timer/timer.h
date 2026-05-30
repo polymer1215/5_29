@@ -12,6 +12,7 @@ extern "C" {
 #include <stdint.h>
     extern volatile uint32_t currentMillis;
     extern volatile uint32_t lastMillis;
+    extern volatile uint32_t lastMillis2;
 
 #ifdef __cplusplus
 }

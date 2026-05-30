@@ -1,5 +1,5 @@
 <component name="DebugServers">
-  <jlink-debug-target name="SEGGER J-Link" uniqueID="3bf5f564-70d7-44a6-bb7f-8cebaa56823c">
+  <jlink-debug-target name="SEGGER J-Link" uniqueID="3bf5f564-70d7-44a6-bb7f-8cebaa56823c" selected="true">
     <debugger version="1">
       <debugger kind="GDB" isBundled="true" />
       <env />

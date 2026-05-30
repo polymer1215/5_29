@@ -8,6 +8,8 @@
 #include "../../Lib/oled/OLED.h"
 #include "../timer/timer.h"
 #include "../ultrasonic/ultrasonic.h"
+#include "../motor/motor.h"
+
 
 void main_entry(void) {
     HAL_Delay(50);  // wait for OLED power-up
@@ -16,16 +18,23 @@ void main_entry(void) {
     HAL_TIM_Base_Start_IT(&htim4);
     HAL_TIM_IC_Start_IT(&htim4, TIM_CHANNEL_1);
 
+    allMotorInit();
+    setLeftMotorPwm(1000);
+    setRightMotorPwm(1000);
 
     for (;;) {
         if (currentMillis - lastMillis > 100) {
             lastMillis += 100;
+            ultrasonic_startMeasure();
+        }
+
+        if (currentMillis - lastMillis2 > 1000) {
+            lastMillis2 += 1000;
             HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
             OLED_ShowNum(0, 0, currentMillis, 10, OLED_8X16);
-            /*调用OLED_Update函数，将OLED显存数组的内容更新到OLED硬件进行显示*/
-            OLED_Update();
-            ultrasonic_startMeasure();
             OLED_ShowNum(0, 20, distance_cm, 10, OLED_8X16);
+            OLED_ShowNum(0, 40, test, 10, OLED_8X16);
+            OLED_Update();
         }
     }
 }
