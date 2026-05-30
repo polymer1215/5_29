@@ -6,21 +6,22 @@
 
 #include "tim.h"
 #include "../../Lib/oled/OLED.h"
+#include "../control/control.h"
 #include "../timer/timer.h"
 #include "../ultrasonic/ultrasonic.h"
 #include "../motor/motor.h"
+#include "../gray/gray.h"
 
 
+volatile int8_t err_sum = 0;
 void main_entry(void) {
-    HAL_Delay(50);  // wait for OLED power-up
+    HAL_Delay(100);  // wait for OLED power-up
     OLED_Init();
 
     HAL_TIM_Base_Start_IT(&htim4);
     HAL_TIM_IC_Start_IT(&htim4, TIM_CHANNEL_1);
 
     allMotorInit();
-    setLeftMotorPwm(1000);
-    setRightMotorPwm(1000);
 
     for (;;) {
         if (currentMillis - lastMillis > 100) {
@@ -33,7 +34,14 @@ void main_entry(void) {
             HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
             OLED_ShowNum(0, 0, currentMillis, 10, OLED_8X16);
             OLED_ShowNum(0, 20, distance_cm, 10, OLED_8X16);
-            OLED_ShowNum(0, 40, test, 10, OLED_8X16);
+            if (err_sum >= 0) {
+                OLED_ShowChar(0, 40, '+', OLED_8X16);
+                OLED_ShowNum(8, 40, err_sum, 3, OLED_8X16);
+            }
+            else {
+                OLED_ShowChar(0, 40, '-', OLED_8X16);
+                OLED_ShowNum(8, 40, -err_sum, 3, OLED_8X16);
+            }
             OLED_Update();
         }
     }
@@ -47,6 +55,23 @@ extern "C" void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
         }
 
         currentMillis += 10;
+
+
+
+        volatile bool is_get_err = 1;
+        if (L1 && L2 && L3 && L4 && L5 && L6 && L7 && L8) {
+            setLeftMotorPwm(0);
+            setRightMotorPwm(0);
+            is_get_err = 0;
+        }
+
+        if (is_get_err) {
+            err_sum = get_pos_err();
+            setLeftMotorPwm(1000 + err_sum * 5);
+            setRightMotorPwm(1000 - err_sum * 5);
+
+        }
+
     }
 }
 

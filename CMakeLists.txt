@@ -41,7 +41,11 @@ add_executable(${CMAKE_PROJECT_NAME}
         Lib/oled/OLED_Data.c
         User/ultrasonic/ultrasonic.h
         User/ultrasonic/ultrasonic.c
-        User/motor/motor.c)
+        User/motor/motor.c
+        User/gray/gray.h
+        User/gray/gray.c
+        User/control/control.h
+        User/control/control.c)
 
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)
