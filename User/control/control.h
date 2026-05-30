@@ -10,6 +10,11 @@ extern "C" {
 #endif
 #include <stdint.h>
 
+    float Track_err(void);
+
+    int PID_out(float error,int Target);
+    void set_speed(int pid_out ,int base_speed);
+
 #ifdef __cplusplus
 }
 #endif

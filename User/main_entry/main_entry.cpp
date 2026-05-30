@@ -13,7 +13,7 @@
 #include "../gray/gray.h"
 
 
-volatile int8_t err_sum = 0;
+volatile bool enable_pid = 1;
 void main_entry(void) {
     HAL_Delay(100);  // wait for OLED power-up
     OLED_Init();
@@ -22,6 +22,8 @@ void main_entry(void) {
     HAL_TIM_IC_Start_IT(&htim4, TIM_CHANNEL_1);
 
     allMotorInit();
+
+
 
     for (;;) {
         if (currentMillis - lastMillis > 100) {
@@ -34,14 +36,6 @@ void main_entry(void) {
             HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
             OLED_ShowNum(0, 0, currentMillis, 10, OLED_8X16);
             OLED_ShowNum(0, 20, distance_cm, 10, OLED_8X16);
-            if (err_sum >= 0) {
-                OLED_ShowChar(0, 40, '+', OLED_8X16);
-                OLED_ShowNum(8, 40, err_sum, 3, OLED_8X16);
-            }
-            else {
-                OLED_ShowChar(0, 40, '-', OLED_8X16);
-                OLED_ShowNum(8, 40, -err_sum, 3, OLED_8X16);
-            }
             OLED_Update();
         }
     }
@@ -57,19 +51,16 @@ extern "C" void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
         currentMillis += 10;
 
 
-
-        volatile bool is_get_err = 1;
-        if (L1 && L2 && L3 && L4 && L5 && L6 && L7 && L8) {
+        update_gray_state();
+        if ((L1 && L2 && L3 && L4 && L5 && L6 && L7 && L8) || (!L1 && !L2 && !L3 && !L4 && !L5 && !L6 && !L7 && !L8)) {
+            enable_pid = 0;
             setLeftMotorPwm(0);
             setRightMotorPwm(0);
-            is_get_err = 0;
         }
-
-        if (is_get_err) {
-            err_sum = get_pos_err();
-            setLeftMotorPwm(1000 + err_sum * 5);
-            setRightMotorPwm(1000 - err_sum * 5);
-
+        if (enable_pid) {
+            float current_error = Track_err();
+            int pid_val = PID_out(current_error, 0);
+            set_speed(pid_val, 500);
         }
 
     }

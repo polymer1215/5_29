@@ -24,5 +24,12 @@ void update_gray_state() {
     L7 = HAL_GPIO_ReadPin(GIN7_GPIO_Port, GIN7_Pin);
     L8 = HAL_GPIO_ReadPin(GIN8_GPIO_Port, GIN8_Pin);
 
-    gray_state = (uint8_t)(~((L1 << 7) | (L2 << 6) | (L3 << 5) | (L4 << 4) | (L5 << 3) | (L6 << 2) | (L7 << 1) | (L8 << 0)));
+    gray_state = (uint8_t) ~( (L1 & 1) << 7 |
+                          (L2 & 1) << 6 |
+                          (L3 & 1) << 5 |
+                          (L4 & 1) << 4 |
+                          (L5 & 1) << 3 |
+                          (L6 & 1) << 2 |
+                          (L7 & 1) << 1 |
+                          (L8 & 1) << 0 );
 }
