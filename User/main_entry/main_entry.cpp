@@ -37,6 +37,7 @@ uint32_t main_tim4_ticks = 0;
 
 volatile float current_error = 0;
 
+int test = 0;
 void main_entry(void) {
     HAL_Delay(100);  // wait for OLED power-up
     OLED_Init();
@@ -106,6 +107,7 @@ void main_entry(void) {
                         }
 
                         if (can_resume_track()) {
+                            test++;
                             state = State::TRACK;
                             track_PID_reset();
                             PID_Reset(&pid_left);
@@ -149,8 +151,6 @@ void main_entry(void) {
             lastMillis2 += 1000;
             HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
             OLED_ShowNum(0, 0, distance_cm, 10, OLED_8X16);
-            OLED_ShowNum(0, 20, leftMotorDeg, 10, OLED_8X16);
-            OLED_ShowNum(0, 40, rightMotorDeg, 10, OLED_8X16);
             OLED_Update();
         }
     }
