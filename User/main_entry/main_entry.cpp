@@ -21,7 +21,7 @@ enum class State {
     TEST,
 };
 
-    volatile State state = State::TRACK;
+volatile State state = State::TRACK;
 
 volatile bool enable_track_pid = 1;
 volatile bool enable_speed_pid = 1;
@@ -60,8 +60,8 @@ void main_entry(void) {
                 case State::TEST:
                     if (ENTER_TEST) {
                         ENTER_TEST = 0;
-                        setLeftMotorDeg(500);
-                        setRightMotorDeg(500);
+                        setLeftMotorDeg(1000);
+                        setRightMotorDeg(1000);
                         enable_track_pid = 0;
                     }
                     break;
