@@ -46,7 +46,9 @@ add_executable(${CMAKE_PROJECT_NAME}
         User/gray/gray.c
         User/control/control.h
         User/control/control.c
-        User/timer/TimerTask.cpp)
+        User/timer/TimerTask.cpp
+        User/control/avoidObstacle.h
+        User/control/avoidObstacle.cpp)
 
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)

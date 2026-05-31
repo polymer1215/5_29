@@ -6,6 +6,7 @@
 
 #include "tim.h"
 #include "../../Lib/oled/OLED.h"
+#include "../control/avoidObstacle.h"
 #include "../control/control.h"
 #include "../timer/timer.h"
 #include "../ultrasonic/ultrasonic.h"
@@ -22,7 +23,9 @@ enum class State {
 volatile State state = State::TRACK;
 
 volatile bool enable_pid = 1;
-volatile bool FLAG1 = 1;
+
+volatile bool READY_FOR_RESUME_TRACK = 1;
+volatile bool ENTER_OBSTACLE = 1;
 
 volatile uint32_t tim4_irq_ticks = 0;
 uint32_t main_tim4_ticks = 0;
@@ -60,21 +63,28 @@ void main_entry(void) {
                     break;
 
                 case State::OBSTACLE:
-                    if (currentMillis - obstacleStartMillis < 600) {
-                        setLeftMotorPwm(-500);
-                        setRightMotorPwm(500);
+                    if (ENTER_OBSTACLE) {
+                        TimerTask::ClearTasks();
+                        TimerTask::AddTask(turnLeft, 700);
+                        TimerTask::AddTask(goStraight, 1000);
+                        TimerTask::AddTask(turnRight, 700);
+                        TimerTask::AddTask(goStraight, 1000);
+                        TimerTask::AddTask(turnRight, 700);
+                        ENTER_OBSTACLE = 0;
                     }
 
-                    else {
-                        if (FLAG1 == 1) {
+
+                    if (TimerTask::IsFinished()) {
+                        if (READY_FOR_RESUME_TRACK == 1) {
                             setLeftMotorPwm(0);
                             setRightMotorPwm(0);
-                            FLAG1 = 0;
+                            READY_FOR_RESUME_TRACK = 0;
                         }
                         if (!L2 || !L3 || !L4 || !L5 || !L6 || !L7) {
 
                             state = State::TRACK;
                             reset_PID();
+                            ENTER_OBSTACLE = 1;
                             enable_pid = 1;
                         }
 
