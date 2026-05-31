@@ -8,10 +8,15 @@
 float error;
 
 #define Kp    120
-#define Kd    300
+#define Kd    600
 
 uint8_t last_infrared_state = 0;
 
+volatile int last_err = 0;
+
+void reset_PID() {
+	last_err = 0;
+}
 float Track_err(void)
 {
 	// 优化：新增“连续2次状态一致才更新误差”，既防抖又避免更新滞后
@@ -125,7 +130,6 @@ float Track_err(void)
 
 int PID_out(float error, int Target)      //位置环
 {
-    static int last_err = 0;  // 保留原有静态变量，不新增全局变量
 
     int err = (int)error;
     int out;

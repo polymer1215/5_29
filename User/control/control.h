@@ -9,7 +9,9 @@
 extern "C" {
 #endif
 #include <stdint.h>
+    extern volatile int last_err;
 
+    void reset_PID();
     float Track_err(void);
 
     int PID_out(float error,int Target);
