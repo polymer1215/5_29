@@ -7,4 +7,3 @@
 volatile uint32_t currentMillis = 0;
 volatile uint32_t lastMillis = 0;
 volatile uint32_t lastMillis2 = 0;
-volatile uint32_t obstacleStartMillis = 0;

@@ -9,4 +9,6 @@ void turnLeft(void);
 void goStraight(void);
 void turnRight(void);
 void stayStill();
+
+bool can_resume_track();
 #endif //AVOIDOBSTACLE_H

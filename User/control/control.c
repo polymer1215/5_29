@@ -7,8 +7,8 @@
 
 float error;
 
-#define Kp    100
-#define Kd    500
+#define Kp    150
+#define Kd    10
 
 uint8_t last_infrared_state = 0;
 

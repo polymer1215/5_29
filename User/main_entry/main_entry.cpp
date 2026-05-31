@@ -26,7 +26,6 @@ volatile State state = State::TRACK;
 volatile bool enable_track_pid = 1;
 volatile bool enable_speed_pid = 1;
 
-volatile bool READY_FOR_RESUME_TRACK = 1;
 volatile bool ENTER_OBSTACLE = 1;
 volatile bool WAIT_FOR_RESUME_TRACK = 1;
 volatile bool READY_FOR_ADJUST_POS = 1;
@@ -35,6 +34,8 @@ volatile bool ENTER_TEST = 1;
 
 volatile uint32_t tim4_irq_ticks = 0;
 uint32_t main_tim4_ticks = 0;
+
+volatile float current_error = 0;
 
 void main_entry(void) {
     HAL_Delay(100);  // wait for OLED power-up
@@ -67,12 +68,12 @@ void main_entry(void) {
                     break;
 
                 case State::TRACK:
+
                     if (distance_cm < 12) {
                         enable_track_pid = 0;
                         setLeftMotorPwm(0);
                         setRightMotorPwm(0);
                         state = State::OBSTACLE;
-                        obstacleStartMillis = currentMillis;
                     }
 
                     break;
@@ -82,17 +83,15 @@ void main_entry(void) {
                         TimerTask::ClearTasks();
                         TimerTask::AddTask(turnLeft, 500);
                         TimerTask::AddTask(stayStill, 50);
-                        TimerTask::AddTask(goStraight, 1000);
+                        TimerTask::AddTask(goStraight, 800);
                         TimerTask::AddTask(stayStill, 50);
                         TimerTask::AddTask(turnRight, 500);
                         TimerTask::AddTask(stayStill, 50);
-                        TimerTask::AddTask(goStraight, 1800);
+                        TimerTask::AddTask(goStraight, 1500);
                         TimerTask::AddTask(stayStill, 50);
                         TimerTask::AddTask(turnRight, 500);
                         TimerTask::AddTask(stayStill, 50);
-                        TimerTask::AddTask(goStraight, 1000);
-                        TimerTask::AddTask(stayStill, 50);
-                        TimerTask::AddTask(turnLeft, 500);
+                        TimerTask::AddTask(goStraight, 800);
                         TimerTask::AddTask(stayStill, 50);
                         ENTER_OBSTACLE = 0;
                     }
@@ -100,19 +99,21 @@ void main_entry(void) {
 
                     if (TimerTask::IsFinished()) {
 
-                        if (abs(Track_err()) < 6) {
-                            if (WAIT_FOR_RESUME_TRACK) {
-                                TimerTask::AddTask(stayStill, 500);
-                                WAIT_FOR_RESUME_TRACK = 0;
-                                continue;
-                            }
+                        if (WAIT_FOR_RESUME_TRACK) {
+                            setLeftMotorDeg(-500);
+                            setRightMotorDeg(500);
+                            WAIT_FOR_RESUME_TRACK = 0;
+                        }
 
+                        if (can_resume_track()) {
                             state = State::TRACK;
                             track_PID_reset();
                             PID_Reset(&pid_left);
                             PID_Reset(&pid_right);
                             ENTER_OBSTACLE = 1;
+                            WAIT_FOR_RESUME_TRACK = 1;
                             enable_track_pid = 1;
+                            TimerTask::ClearTasks();
                         }
 
                     }
@@ -124,7 +125,7 @@ void main_entry(void) {
             //     setRightMotorPwm(0);
             // }
             if (enable_track_pid) {
-                float current_error = Track_err();
+                current_error = Track_err();
                 int pid_val = PID_out(current_error, 0);
                 setLeftMotorDeg(500 - pid_val);
                 setRightMotorDeg(500 + pid_val);
