@@ -43,7 +43,7 @@ public:
     static bool IsFinished();
 
 private:
-    static const int MAX_TASKS = 10;
+    static const int MAX_TASKS = 20;
     static Task taskQueue[MAX_TASKS];
     static volatile int queueHead;
     static volatile int queueTail;

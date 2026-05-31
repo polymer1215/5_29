@@ -10,12 +10,16 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include "../pid/pid.h"
 
 extern volatile int32_t leftMotorDeg;
 extern volatile int32_t rightMotorDeg;
 
 extern volatile int32_t leftMotorPwm;
 extern volatile int32_t rightMotorPwm;
+
+extern PID_Instance pid_left;
+extern PID_Instance pid_right;
 
 void allMotorInit();
 

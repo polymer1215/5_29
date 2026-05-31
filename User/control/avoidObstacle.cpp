@@ -6,21 +6,21 @@
 #include "../motor/motor.h"
 
 void turnLeft(void) {
-    setLeftMotorPwm(-500);
-    setRightMotorPwm(500);
+    setLeftMotorDeg(-500);
+    setRightMotorDeg(500);
 }
 
 void goStraight(void) {
-    setLeftMotorPwm(500);
-    setRightMotorPwm(500);
+    setLeftMotorDeg(500);
+    setRightMotorDeg(500);
 }
 
 void turnRight(void) {
-    setLeftMotorPwm(500);
-    setRightMotorPwm(-500);
+    setLeftMotorDeg(500);
+    setRightMotorDeg(-500);
 }
 
 void stayStill(void) {
-    setLeftMotorPwm(0);
-    setRightMotorPwm(0);
+    setLeftMotorDeg(0);
+    setRightMotorDeg(0);
 }

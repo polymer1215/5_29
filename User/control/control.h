@@ -11,7 +11,7 @@ extern "C" {
 #include <stdint.h>
     extern volatile int last_err;
 
-    void reset_PID();
+    void track_PID_reset();
     float Track_err(void);
 
     int PID_out(float error,int Target);

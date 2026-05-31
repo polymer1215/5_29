@@ -7,14 +7,14 @@
 
 float error;
 
-#define Kp    120
-#define Kd    600
+#define Kp    150
+#define Kd    100
 
 uint8_t last_infrared_state = 0;
 
 volatile int last_err = 0;
 
-void reset_PID() {
+void track_PID_reset() {
 	last_err = 0;
 }
 float Track_err(void)
@@ -144,8 +144,8 @@ int PID_out(float error, int Target)      //位置环
     out = Kp * err + Kd * diff;
 
     // 优化点4：增加极简输出限幅，避免超出电机有效范围
-    if (out > 1000) out = 1000;
-    if (out < -1000) out = -1000;
+    if (out > 500) out = 500;
+    if (out < -500) out = -500;
 
     last_err = err;  // 保留原有历史误差更新
     return out;

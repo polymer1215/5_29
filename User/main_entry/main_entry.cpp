@@ -21,7 +21,7 @@ enum class State {
     TEST,
 };
 
-volatile State state = State::TEST;
+    volatile State state = State::TRACK;
 
 volatile bool enable_track_pid = 1;
 volatile bool enable_speed_pid = 1;
@@ -67,7 +67,7 @@ void main_entry(void) {
                     break;
 
                 case State::TRACK:
-                    if (distance_cm < 20) {
+                    if (distance_cm < 12) {
                         enable_track_pid = 0;
                         setLeftMotorPwm(0);
                         setRightMotorPwm(0);
@@ -80,13 +80,20 @@ void main_entry(void) {
                 case State::OBSTACLE:
                     if (ENTER_OBSTACLE) {
                         TimerTask::ClearTasks();
-                        TimerTask::AddTask(turnLeft, 700);
-                        TimerTask::AddTask(goStraight, 800);
-                        TimerTask::AddTask(turnRight, 600);
-                        TimerTask::AddTask(goStraight, 3000);
-                        TimerTask::AddTask(turnRight, 600);
-                        TimerTask::AddTask(goStraight, 800);
-                        TimerTask::AddTask(turnLeft, 700);
+                        TimerTask::AddTask(turnLeft, 500);
+                        TimerTask::AddTask(stayStill, 50);
+                        TimerTask::AddTask(goStraight, 1000);
+                        TimerTask::AddTask(stayStill, 50);
+                        TimerTask::AddTask(turnRight, 500);
+                        TimerTask::AddTask(stayStill, 50);
+                        TimerTask::AddTask(goStraight, 1800);
+                        TimerTask::AddTask(stayStill, 50);
+                        TimerTask::AddTask(turnRight, 500);
+                        TimerTask::AddTask(stayStill, 50);
+                        TimerTask::AddTask(goStraight, 1000);
+                        TimerTask::AddTask(stayStill, 50);
+                        TimerTask::AddTask(turnLeft, 500);
+                        TimerTask::AddTask(stayStill, 50);
                         ENTER_OBSTACLE = 0;
                     }
 
@@ -101,7 +108,9 @@ void main_entry(void) {
                             }
 
                             state = State::TRACK;
-                            reset_PID();
+                            track_PID_reset();
+                            PID_Reset(&pid_left);
+                            PID_Reset(&pid_right);
                             ENTER_OBSTACLE = 1;
                             enable_track_pid = 1;
                         }
@@ -117,7 +126,8 @@ void main_entry(void) {
             if (enable_track_pid) {
                 float current_error = Track_err();
                 int pid_val = PID_out(current_error, 0);
-                set_speed(pid_val, 500);
+                setLeftMotorDeg(500 - pid_val);
+                setRightMotorDeg(500 + pid_val);
             }
 
             if (enable_speed_pid) {
@@ -155,9 +165,7 @@ extern "C" void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
         currentMillis += 10;
         tim4_irq_ticks++;
 
-        if (state == State::OBSTACLE || state == State::TEST) {
-            updateAllMotor();
-        }
+        updateAllMotor();
 
     }
 }
