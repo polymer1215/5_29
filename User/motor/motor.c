@@ -4,22 +4,30 @@
 
 #include "tim.h"
 #include "motor.h"
+#include "../pid/pid.h"
 
 const uint32_t RATIO = 20; // motor decceration ratio
 const uint32_t FREQUENCY = 100; // tim4 interrupt frequency
-const uint32_t LINE = 13;
+const uint32_t LINE = 500;
 const uint32_t REV = LINE * 4 * RATIO;
 const int32_t MAX_pwm = 3599;
 
 
-uint8_t pidEnabled = 0;
 int32_t leftMotorDegTarget = 0;
 int32_t rightMotorDegTarget = 0;
+
 
 volatile int32_t rightMotorDeg = 0;
 volatile int32_t leftMotorDeg = 0;
 volatile int32_t leftMotorPwm = 0;
 volatile int32_t rightMotorPwm = 0;
+
+const float KP = 5.0;
+const float KI = 1.55;
+const float KD = 0.2;
+
+PID_Instance pid_left;
+PID_Instance pid_right;
 
 void allMotorInit() {
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
@@ -27,6 +35,8 @@ void allMotorInit() {
 
     HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
     HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
+    PID_Init(&pid_left, PID_MODE_POSITIONAL, KP, KI, KD, 3599, -3599);
+    PID_Init(&pid_right, PID_MODE_POSITIONAL, KP, KI, KD, 3599, -3599);
 }
 
 
@@ -78,16 +88,22 @@ void updateRightMotorSpeed() {
     int16_t count = (int16_t)__HAL_TIM_GET_COUNTER(&htim2);
     __HAL_TIM_SET_COUNTER(&htim2, 0);
 
-    // float rpm = (float)count * 60.0f * (float)FREQUENCY / (float)REV;
-    // rightMotorDeg = rpm * 6;
-    rightMotorDeg = ((int32_t)count * 450) / 13;
+    rightMotorDeg = (int32_t)count * FREQUENCY * 360 / REV;
 }
 
 void updateLeftMotorSpeed() {
     int16_t count = (int16_t)__HAL_TIM_GET_COUNTER(&htim3);
     __HAL_TIM_SET_COUNTER(&htim3, 0);
 
-    // float rpm = (float)count * 60.0f * (float)FREQUENCY / (float)REV;
-    // leftMotorDeg = rpm * 6;
-    leftMotorDeg = ((int32_t)count * 450) / 13;
+    leftMotorDeg = (int32_t)count * FREQUENCY * 360 / REV;
+}
+
+void rightMotorPid() {
+    int32_t pwm_output = PID_Compute(&pid_right, rightMotorDegTarget, rightMotorDeg);
+    setRightMotorPwm(pwm_output);
+}
+
+void leftMotorPid() {
+    int32_t pwm_output = PID_Compute(&pid_left, leftMotorDegTarget, leftMotorDeg);
+    setLeftMotorPwm(pwm_output);
 }

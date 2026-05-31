@@ -18,14 +18,20 @@
 enum class State {
     TRACK,
     OBSTACLE,
+    TEST,
 };
 
-volatile State state = State::TRACK;
+volatile State state = State::TEST;
 
-volatile bool enable_pid = 1;
+volatile bool enable_track_pid = 1;
+volatile bool enable_speed_pid = 1;
 
 volatile bool READY_FOR_RESUME_TRACK = 1;
 volatile bool ENTER_OBSTACLE = 1;
+volatile bool WAIT_FOR_RESUME_TRACK = 1;
+volatile bool READY_FOR_ADJUST_POS = 1;
+
+volatile bool ENTER_TEST = 1;
 
 volatile uint32_t tim4_irq_ticks = 0;
 uint32_t main_tim4_ticks = 0;
@@ -35,10 +41,10 @@ void main_entry(void) {
     OLED_Init();
 
     distance_cm = 100;
+    allMotorInit();
     HAL_TIM_IC_Start_IT(&htim4, TIM_CHANNEL_1);
     HAL_TIM_Base_Start_IT(&htim4);
 
-    allMotorInit();
 
 
 
@@ -51,9 +57,18 @@ void main_entry(void) {
 
             update_gray_state();
             switch (state) {
+                case State::TEST:
+                    if (ENTER_TEST) {
+                        ENTER_TEST = 0;
+                        setLeftMotorDeg(1000);
+                        setRightMotorDeg(1000);
+                        enable_track_pid = 0;
+                    }
+                    break;
+
                 case State::TRACK:
                     if (distance_cm < 20) {
-                        enable_pid = 0;
+                        enable_track_pid = 0;
                         setLeftMotorPwm(0);
                         setRightMotorPwm(0);
                         state = State::OBSTACLE;
@@ -66,26 +81,29 @@ void main_entry(void) {
                     if (ENTER_OBSTACLE) {
                         TimerTask::ClearTasks();
                         TimerTask::AddTask(turnLeft, 700);
-                        TimerTask::AddTask(goStraight, 1000);
-                        TimerTask::AddTask(turnRight, 700);
-                        TimerTask::AddTask(goStraight, 1000);
-                        TimerTask::AddTask(turnRight, 700);
+                        TimerTask::AddTask(goStraight, 800);
+                        TimerTask::AddTask(turnRight, 600);
+                        TimerTask::AddTask(goStraight, 3000);
+                        TimerTask::AddTask(turnRight, 600);
+                        TimerTask::AddTask(goStraight, 800);
+                        TimerTask::AddTask(turnLeft, 700);
                         ENTER_OBSTACLE = 0;
                     }
 
 
                     if (TimerTask::IsFinished()) {
-                        if (READY_FOR_RESUME_TRACK == 1) {
-                            setLeftMotorPwm(0);
-                            setRightMotorPwm(0);
-                            READY_FOR_RESUME_TRACK = 0;
-                        }
-                        if (!L2 || !L3 || !L4 || !L5 || !L6 || !L7) {
+
+                        if (abs(Track_err()) < 6) {
+                            if (WAIT_FOR_RESUME_TRACK) {
+                                TimerTask::AddTask(stayStill, 500);
+                                WAIT_FOR_RESUME_TRACK = 0;
+                                continue;
+                            }
 
                             state = State::TRACK;
                             reset_PID();
                             ENTER_OBSTACLE = 1;
-                            enable_pid = 1;
+                            enable_track_pid = 1;
                         }
 
                     }
@@ -96,10 +114,15 @@ void main_entry(void) {
             //     setLeftMotorPwm(0);
             //     setRightMotorPwm(0);
             // }
-            if (enable_pid) {
+            if (enable_track_pid) {
                 float current_error = Track_err();
                 int pid_val = PID_out(current_error, 0);
                 set_speed(pid_val, 500);
+            }
+
+            if (enable_speed_pid) {
+                leftMotorPid();
+                rightMotorPid();
             }
 
             TimerTask::Update();
@@ -114,8 +137,9 @@ void main_entry(void) {
         if (currentMillis - lastMillis2 > 1000) {
             lastMillis2 += 1000;
             HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-            OLED_ShowNum(0, 0, currentMillis, 10, OLED_8X16);
-            OLED_ShowNum(0, 20, distance_cm, 10, OLED_8X16);
+            OLED_ShowNum(0, 0, distance_cm, 10, OLED_8X16);
+            OLED_ShowNum(0, 20, leftMotorDeg, 10, OLED_8X16);
+            OLED_ShowNum(0, 40, rightMotorDeg, 10, OLED_8X16);
             OLED_Update();
         }
     }
@@ -130,6 +154,10 @@ extern "C" void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
         currentMillis += 10;
         tim4_irq_ticks++;
+
+        if (state == State::OBSTACLE || state == State::TEST) {
+            updateAllMotor();
+        }
 
     }
 }

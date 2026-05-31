@@ -29,6 +29,9 @@ void updateLeftMotorSpeed();
 void setLeftMotorPwm(int32_t pwm);
 void setRightMotorPwm(int32_t pwm);
 
+    void rightMotorPid();
+    void leftMotorPid();
+
 #ifdef __cplusplus
 }
 #endif

@@ -19,3 +19,8 @@ void turnRight(void) {
     setLeftMotorPwm(500);
     setRightMotorPwm(-500);
 }
+
+void stayStill(void) {
+    setLeftMotorPwm(0);
+    setRightMotorPwm(0);
+}

@@ -8,4 +8,5 @@
 void turnLeft(void);
 void goStraight(void);
 void turnRight(void);
+void stayStill();
 #endif //AVOIDOBSTACLE_H
