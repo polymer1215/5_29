@@ -8,7 +8,8 @@
 void turnLeft(void);
 void goStraight(void);
 void turnRight(void);
-void stayStill();
+void stayStill(void);
+void avoidObstacle(void);
 
 bool can_resume_track();
 #endif //AVOIDOBSTACLE_H

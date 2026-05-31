@@ -81,19 +81,6 @@ void main_entry(void) {
 
                 case State::OBSTACLE:
                     if (ENTER_OBSTACLE) {
-                        TimerTask::ClearTasks();
-                        TimerTask::AddTask(turnLeft, 500);
-                        TimerTask::AddTask(stayStill, 50);
-                        TimerTask::AddTask(goStraight, 800);
-                        TimerTask::AddTask(stayStill, 50);
-                        TimerTask::AddTask(turnRight, 500);
-                        TimerTask::AddTask(stayStill, 50);
-                        TimerTask::AddTask(goStraight, 1500);
-                        TimerTask::AddTask(stayStill, 50);
-                        TimerTask::AddTask(turnRight, 500);
-                        TimerTask::AddTask(stayStill, 50);
-                        TimerTask::AddTask(goStraight, 800);
-                        TimerTask::AddTask(stayStill, 50);
                         ENTER_OBSTACLE = 0;
                     }
 
@@ -101,8 +88,7 @@ void main_entry(void) {
                     if (TimerTask::IsFinished()) {
 
                         if (WAIT_FOR_RESUME_TRACK) {
-                            setLeftMotorDeg(-500);
-                            setRightMotorDeg(500);
+                            turnLeft();
                             WAIT_FOR_RESUME_TRACK = 0;
                         }
 
@@ -121,11 +107,6 @@ void main_entry(void) {
                     }
                     break;
             }
-            // if ((L1 && L2 && L3 && L4 && L5 && L6 && L7 && L8) || (!L1 && !L2 && !L3 && !L4 && !L5 && !L6 && !L7 && !L8)) {
-            //     enable_pid = 0;
-            //     setLeftMotorPwm(0);
-            //     setRightMotorPwm(0);
-            // }
             if (enable_track_pid) {
                 current_error = Track_err();
                 int pid_val = PID_out(current_error, 0);

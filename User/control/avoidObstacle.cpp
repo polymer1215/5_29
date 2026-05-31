@@ -5,6 +5,7 @@
 #include "avoidObstacle.h"
 #include "../motor/motor.h"
 #include "../gray/gray.h"
+#include "../timer/TimerTask.hpp"
 
 void turnLeft(void) {
     setLeftMotorDeg(-500);
@@ -24,6 +25,23 @@ void turnRight(void) {
 void stayStill(void) {
     setLeftMotorDeg(0);
     setRightMotorDeg(0);
+}
+
+void avoidObstacle(void) {
+    TimerTask::ClearTasks();
+    TimerTask::AddTask(turnLeft, 500);
+    TimerTask::AddTask(stayStill, 50);
+    TimerTask::AddTask(goStraight, 800);
+    TimerTask::AddTask(stayStill, 50);
+    TimerTask::AddTask(turnRight, 500);
+    TimerTask::AddTask(stayStill, 50);
+    TimerTask::AddTask(goStraight, 1500);
+    TimerTask::AddTask(stayStill, 50);
+    TimerTask::AddTask(turnRight, 500);
+    TimerTask::AddTask(stayStill, 50);
+    TimerTask::AddTask(goStraight, 800);
+    TimerTask::AddTask(stayStill, 50);
+
 }
 
 bool can_resume_track() {
