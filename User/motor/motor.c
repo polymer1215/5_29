@@ -23,8 +23,8 @@ volatile int32_t leftMotorPwm = 0;
 volatile int32_t rightMotorPwm = 0;
 
 const float KP = 5.0;
-const float KI = 1.55;
-const float KD = 0.2;
+const float KI = 0.2;
+const float KD = 0;
 
 PID_Instance pid_left;
 PID_Instance pid_right;
@@ -85,17 +85,17 @@ void updateAllMotor() {
 }
 
 void updateRightMotorSpeed() {
-    int16_t count = (int16_t)__HAL_TIM_GET_COUNTER(&htim2);
+    int32_t count = (int32_t)(int16_t)__HAL_TIM_GET_COUNTER(&htim2);
     __HAL_TIM_SET_COUNTER(&htim2, 0);
 
-    rightMotorDeg = (int32_t)count * FREQUENCY * 360 / REV;
+    rightMotorDeg = count * (int32_t)FREQUENCY * 360 / (int32_t)REV;
 }
 
 void updateLeftMotorSpeed() {
-    int16_t count = (int16_t)__HAL_TIM_GET_COUNTER(&htim3);
+    int32_t count = (int32_t)(int16_t)__HAL_TIM_GET_COUNTER(&htim3);
     __HAL_TIM_SET_COUNTER(&htim3, 0);
 
-    leftMotorDeg = (int32_t)count * FREQUENCY * 360 / REV;
+    leftMotorDeg = count * (int32_t)FREQUENCY * 360 / (int32_t)REV;
 }
 
 void rightMotorPid() {

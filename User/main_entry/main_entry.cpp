@@ -60,8 +60,8 @@ void main_entry(void) {
                 case State::TEST:
                     if (ENTER_TEST) {
                         ENTER_TEST = 0;
-                        setLeftMotorDeg(1000);
-                        setRightMotorDeg(1000);
+                        setLeftMotorDeg(500);
+                        setRightMotorDeg(500);
                         enable_track_pid = 0;
                     }
                     break;
