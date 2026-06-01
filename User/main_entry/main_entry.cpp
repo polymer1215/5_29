@@ -81,6 +81,7 @@ void main_entry(void) {
 
                 case State::OBSTACLE:
                     if (ENTER_OBSTACLE) {
+                        avoidObstacle();
                         ENTER_OBSTACLE = 0;
                     }
 
